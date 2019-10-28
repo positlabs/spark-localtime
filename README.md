@@ -1,2 +1,5 @@
-# spark-localtime
-script &amp; patch for local time info
+# Local time utility for Spark AR
+
+Script &amp; patch for local time info.
+
+![](./screenshot.jpg)
