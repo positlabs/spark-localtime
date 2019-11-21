@@ -1,5 +1,5 @@
-# Local time utility for Spark AR
+# Local date/time utility for Spark AR
 
-Script &amp; patch for local time info.
+Script &amp; patch for localized dates.
 
-![](./screenshot.jpg)
+![screenshot](./screenshot.jpg)
