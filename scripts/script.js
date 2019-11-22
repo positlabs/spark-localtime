@@ -58,12 +58,16 @@ var languageAndTerritory = Locale.fromDevice.replace('_', '-')
 if (languageAndTerritory === 'foo-bar') languageAndTerritory = 'en-US'
 
 // options for some of the toScript nodes
-Patches.setStringValue('longType', 'long')
-Patches.setStringValue('shortType', 'short')
-Patches.setStringValue('narrowType', 'narrow')
-Patches.setStringValue('numericType', 'numeric')
-Patches.setStringValue('twoDigitType', '2-digit')
-Patches.setStringValue('mediumType', 'medium')
+try {
+  Patches.setStringValue('longType', 'long')
+  Patches.setStringValue('shortType', 'short')
+  Patches.setStringValue('narrowType', 'narrow')
+  Patches.setStringValue('numericType', 'numeric')
+  Patches.setStringValue('twoDigitType', '2-digit')
+  Patches.setStringValue('mediumType', 'medium')
+} catch (e) {
+  D.log(e)
+}
 
 const defaults = {
   weekday: 'long',
@@ -108,7 +112,12 @@ function refreshDate() {
   // D.log(options)
 
   const dateString = new Date().toLocaleDateString(languageAndTerritory, options)
-  Patches.setStringValue('date', dateString)
+  try {
+    // don't bork if the script node isn't in the patch editor yet
+    Patches.setStringValue('date', dateString)
+  } catch (e) {
+    D.log(e)
+  }
 
 }
 
@@ -120,6 +129,12 @@ function setRefreshInterval(refreshInterval) {
   // D.log('setRefreshInterval: ' + refreshInterval)
   interval = Time.setInterval(refreshDate, refreshInterval)
 }
-Patches.getScalarValue('refreshInterval').monitor({fireOnInitialValue: true}).subscribe(({newValue}) => {
-  setRefreshInterval(newValue)
-})
+try {
+  Patches.getScalarValue('refreshInterval').monitor({fireOnInitialValue: true}).subscribe(({newValue}) => {
+    setRefreshInterval(newValue)
+  })
+} catch (e) {
+  // use default if none is set
+  setRefreshInterval()
+  // D.log(e)
+}
