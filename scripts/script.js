@@ -54,17 +54,22 @@ const D = require('Diagnostics')
 const Time = require('Time')
 const Patches = require('Patches')
 const Locale = require('Locale')
-var languageAndTerritory = Locale.fromDevice.replace('_', '-')
-if (languageAndTerritory === 'foo-bar') languageAndTerritory = 'en-US'
+
+let languageAndTerritory = 'en-US'
+Locale.locale.monitor({fireOnInitialValue: true}).subscribe(val => {
+  const locale = val.newValue
+  languageAndTerritory = locale.replace('_', '-')
+  if (languageAndTerritory === 'foo-bar') languageAndTerritory = 'en-US'
+})
 
 // options for some of the toScript nodes
 try {
-  Patches.setStringValue('longType', 'long')
-  Patches.setStringValue('shortType', 'short')
-  Patches.setStringValue('narrowType', 'narrow')
-  Patches.setStringValue('numericType', 'numeric')
-  Patches.setStringValue('twoDigitType', '2-digit')
-  Patches.setStringValue('mediumType', 'medium')
+  Patches.inputs.setString('longType', 'long')
+  Patches.inputs.setString('shortType', 'short')
+  Patches.inputs.setString('narrowType', 'narrow')
+  Patches.inputs.setString('numericType', 'numeric')
+  Patches.inputs.setString('twoDigitType', '2-digit')
+  Patches.inputs.setString('mediumType', 'medium')
 } catch (e) {
   D.log(e)
 }
@@ -78,47 +83,61 @@ const defaults = {
   minute: 'numeric',
   second: 'numeric',
   timeZoneName: 'long',
-  hour12: true,
+  hour12: undefined,
 }
 
-function getStringVal(name) {
+const options = Object.assign({}, defaults)
+
+async function monitorOption(name, type = 'string') {
+  // D.log('monitorOption: ' + name)
+  let newVal
   try {
-    let val = Patches.getStringValue(name).pinLastValue()
-    if (val.length === 0) return undefined
-    if (val === '0') return defaults[name]
-    return val
+    let promise
+    if(type === 'string') promise = Patches.outputs.getString(name)
+    if(type === 'boolean') promise = Patches.outputs.getBoolean(name)
+    const str = await promise
+    str.monitor({fireOnInitialValue: true}).subscribe(val => {
+      newVal = val.newValue
+      if (newVal.length === 0) newVal = undefined
+      else if (newVal === '0') newVal = defaults[name]
+      else options[name] = val.newValue
+    })
+    // return options[name] = newVal
   } catch (e) {
-    return undefined
+    throw e
   }
 }
+
+monitorOption('weekday')
+monitorOption('year')
+monitorOption('month')
+monitorOption('day')
+monitorOption('hour')
+monitorOption('minute')
+monitorOption('second')
+// monitorOption('dateStyle')
+// monitorOption('timeStyle')
+// monitorOption('formatMatcher')
+monitorOption('hour12', 'boolean')
+monitorOption('timeZoneName')
+
+// TODO add option for setting specific date
+// https://github.com/facebook/hermes/blob/83d5c17d475596c735d65726724c1871e5e0448f/test/hermes/date-constructor.js
 
 function refreshDate() {
   // D.log('refreshDate')
-
-  const options = {
-    weekday: getStringVal('weekday'),
-    year: getStringVal('year'),
-    month: getStringVal('month'),
-    day: getStringVal('day'),
-    hour: getStringVal('hour'),
-    minute: getStringVal('minute'),
-    second: getStringVal('second'),
-    dateStyle: getStringVal('dateStyle'),
-    timeStyle: getStringVal('timeStyle'),
-    formatMatcher: getStringVal('formatMatcher'),
-    hour12: getStringVal('hour12'),
-    timeZoneName: getStringVal('timeZoneName'),
-  }
   // D.log(options)
 
   const dateString = new Date().toLocaleDateString(languageAndTerritory, options)
+  D.log(dateString)
+  D.log(options)
+
   try {
     // don't bork if the script node isn't in the patch editor yet
-    Patches.setStringValue('date', dateString)
+    Patches.inputs.setString('date', dateString)
   } catch (e) {
     D.log(e)
   }
-
 }
 
 var interval
@@ -129,12 +148,12 @@ function setRefreshInterval(refreshInterval) {
   // D.log('setRefreshInterval: ' + refreshInterval)
   interval = Time.setInterval(refreshDate, refreshInterval)
 }
-try {
-  Patches.getScalarValue('refreshInterval').monitor({fireOnInitialValue: true}).subscribe(({newValue}) => {
-    setRefreshInterval(newValue)
+
+Patches.outputs.getScalar('refreshInterval').then(refreshInterval => {
+  refreshInterval.monitor({fireOnInitialValue: true}).subscribe(({newValue}) => {
+  setRefreshInterval(newValue)
   })
-} catch (e) {
+}).catch(e => {
   // use default if none is set
   setRefreshInterval()
-  // D.log(e)
-}
+})

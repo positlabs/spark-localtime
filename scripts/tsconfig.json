@@ -1,1 +1,11 @@
-{"include":["*.js"],"compilerOptions":{"baseUrl":"/private/var/folders/qz/t_jm41xn76x0lnxczvc3kst40000gn/T/skylight-typedefs","allowJs":true,"checkJs":true,"outDir":"/private/var/folders/qz/t_jm41xn76x0lnxczvc3kst40000gn/T/skylight-typedefs/out-dir"}}
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "baseUrl": "/var/folders/7v/j77wwqm96ps_pc3lrp09yp1m0000gn/T/51286595487424c7f87692998e6bedfbb/skylight-typedefs",
+    "checkJs": true,
+    "esModuleInterop": true,
+    "lib": ["es2018"],
+    "outDir": "/var/folders/7v/j77wwqm96ps_pc3lrp09yp1m0000gn/T/51286595487424c7f87692998e6bedfbb/skylight-typedefs/out-dir"
+  },
+  "include": ["*.js", "*.ts"]
+}
