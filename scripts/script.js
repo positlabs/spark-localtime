@@ -31,20 +31,18 @@ function refreshDate() {
 
   const date = new Date()
 
-  Patches.setStringValue('date', date.toString())
-  Patches.setScalarValue('year', (1900 + date.getYear()))
-  Patches.setStringValue('month', monthNames[(date.getMonth())])
-  Patches.setStringValue('day', dayNames[date.getDay()])
-
-  Patches.setScalarValue('hour', date.getHours())
-  Patches.setScalarValue('minute', date.getMinutes())
-  Patches.setScalarValue('second', date.getSeconds())
-
-  Patches.setStringValue('MM', (date.getMonth() + 1).toString().padStart(2, '0'))
-  Patches.setStringValue('DD', date.getDate().toString().padStart(2, '0'))
-  Patches.setStringValue('hh', date.getHours().toString().padStart(2, '0'))
-  Patches.setStringValue('mm', date.getMinutes().toString().padStart(2, '0'))
-  Patches.setStringValue('ss', date.getSeconds().toString().padStart(2, '0'))
+  Patches.inputs.setString('date', date.toString())
+  Patches.inputs.setScalar('year', (1900 + date.getYear()))
+  Patches.inputs.setString('month', monthNames[(date.getMonth())])
+  Patches.inputs.setString('day', dayNames[date.getDay()])
+  Patches.inputs.setScalar('hour', date.getHours())
+  Patches.inputs.setScalar('minute', date.getMinutes())
+  Patches.inputs.setScalar('second', date.getSeconds())
+  Patches.inputs.setString('MM', (date.getMonth() + 1).toString().padStart(2, '0'))
+  Patches.inputs.setString('DD', date.getDate().toString().padStart(2, '0'))
+  Patches.inputs.setString('hh', date.getHours().toString().padStart(2, '0'))
+  Patches.inputs.setString('mm', date.getMinutes().toString().padStart(2, '0'))
+  Patches.inputs.setString('ss', date.getSeconds().toString().padStart(2, '0'))
 }
 
 const second = 1000
